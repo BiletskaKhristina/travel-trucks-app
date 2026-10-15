@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { fetchCamperById } from '@/services/campersApi';
+import { fetchCamperById, createBookingRequest, Camper } from '@/services/campersApi';
 import { FaStar, FaMapMarkerAlt, FaCheckCircle } from 'react-icons/fa';
 
-export default function CamperDetailsPage() {
+interface GalleryItem {
+  original?: string;
+  thumb?: string;
+}
+
+interface ReviewItem {
+  reviewer_name?: string;
+  reviewer_rating: number;
+  comment: string;
+}
+
+function CamperDetailsContent() {
   const params = useParams();
   const camperId = params?.camperId as string;
 
@@ -21,10 +32,11 @@ export default function CamperDetailsPage() {
   });
 
   const [isBooked, setIsBooked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   // Запит детальної інформації про кемпер
-  const { data: camper, isLoading, isError } = useQuery({
+  const { data: camper, isLoading, isError } = useQuery<Camper, Error>({
     queryKey: ['camper', camperId],
     queryFn: () => fetchCamperById(camperId),
     enabled: !!camperId,
@@ -35,14 +47,23 @@ export default function CamperDetailsPage() {
     setErrorMsg('');
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.bookingDate) {
       setErrorMsg('Please fill in all required fields.');
       return;
     }
-    // Імітація успішного надсилання та бронювання (або запит на бекенд)
-    setIsBooked(true);
+
+    try {
+      setIsSubmitting(true);
+      setErrorMsg('');
+      await createBookingRequest(camperId, formData);
+      setIsBooked(true);
+    } catch {
+      setErrorMsg('Failed to submit booking request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -72,10 +93,11 @@ export default function CamperDetailsPage() {
 
         {/* Галерея зображень */}
         <div className="grid grid-cols-3 gap-4 mb-8">
-          {camper.gallery?.map((img: any, index: number) => (
+          {camper.gallery?.map((img: GalleryItem, index: number) => (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               key={index}
-              src={img.original || img.thumb}
+              src={img.original || img.thumb || undefined}
               alt={`${camper.name} ${index + 1}`}
               className="w-full h-72 object-cover rounded-2xl shadow-sm"
             />
@@ -88,6 +110,7 @@ export default function CamperDetailsPage() {
         {/* Таби: Features / Reviews */}
         <div className="flex border-b border-gray-200 mb-10 gap-8">
           <button
+            type="button"
             onClick={() => setActiveTab('features')}
             className={`pb-4 text-lg font-semibold transition border-b-2 ${
               activeTab === 'features' ? 'border-[#101828] text-[#101828]' : 'border-transparent text-gray-400'
@@ -96,6 +119,7 @@ export default function CamperDetailsPage() {
             Features
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('reviews')}
             className={`pb-4 text-lg font-semibold transition border-b-2 ${
               activeTab === 'reviews' ? 'border-[#101828] text-[#101828]' : 'border-transparent text-gray-400'
@@ -111,7 +135,6 @@ export default function CamperDetailsPage() {
             {activeTab === 'features' ? (
               <div className="bg-[#F7F7F7] p-8 rounded-2xl">
                 <div className="flex flex-wrap gap-3 mb-8">
-                  {/* Беджи характеристик */}
                   <span className="bg-white px-4 py-3 rounded-full text-sm font-medium text-[#101828] capitalize">
                     {camper.transmission}
                   </span>
@@ -155,11 +178,11 @@ export default function CamperDetailsPage() {
             ) : (
               <div className="flex flex-col gap-6">
                 {camper.reviews && camper.reviews.length > 0 ? (
-                  camper.reviews.map((review: any, idx: number) => (
+                  camper.reviews.map((review: ReviewItem, idx: number) => (
                     <div key={idx} className="border-b border-gray-100 pb-6">
                       <div className="flex items-center gap-4 mb-3">
                         <div className="w-12 h-12 bg-[#F2F4F7] rounded-full flex items-center justify-center font-bold text-[#829B91] text-lg">
-                          {review.reviewer_name?.[0]}
+                          {review.reviewer_name?.[0] || 'U'}
                         </div>
                         <div>
                           <h4 className="font-semibold text-[#101828]">{review.reviewer_name}</h4>
@@ -190,7 +213,7 @@ export default function CamperDetailsPage() {
 
             {isBooked ? (
               <div className="bg-green-50 border border-green-200 p-6 rounded-xl flex items-center gap-3 text-green-700">
-                <FaCheckCircle className="text-2xl" />
+                <FaCheckCircle className="text-2xl flex-shrink-0" />
                 <div>
                   <p className="font-semibold">Booking successful!</p>
                   <p className="text-sm">We will contact you shortly to confirm details.</p>
@@ -242,9 +265,10 @@ export default function CamperDetailsPage() {
 
                 <button
                   type="submit"
-                  className="mt-2 bg-[#829B91] hover:bg-[#6D7B75] text-white font-medium py-3.5 rounded-full transition text-sm shadow-sm"
+                  disabled={isSubmitting}
+                  className="mt-2 bg-[#829B91] hover:bg-[#6D7B75] text-white font-medium py-3.5 rounded-full transition text-sm shadow-sm disabled:opacity-50 cursor-pointer"
                 >
-                  Send
+                  {isSubmitting ? 'Sending...' : 'Send'}
                 </button>
               </form>
             )}
@@ -252,5 +276,13 @@ export default function CamperDetailsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CamperDetailsPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-32 text-gray-500">Loading page...</div>}>
+      <CamperDetailsContent />
+    </Suspense>
   );
 }

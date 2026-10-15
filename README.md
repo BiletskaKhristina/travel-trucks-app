@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚐 TravelTrucks — Web Application for Camper Rentals
 
-## Getting Started
+TravelTrucks is a web application designed for renting campers and travel vans. Users can explore available campers, filter results by location and technical specifications, view detailed vehicle info with reviews, and make online bookings.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Demo & Deployment
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Live Demo:** [Vercel Deployment Link](https://your-app-name.vercel.app)
+- **Repository:** [GitHub Repository Link](https://github.com/your-username/travel-trucks)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠 Tech Stack
 
-## Learn More
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **State Management & Data Fetching:** `@tanstack/react-query` (`useInfiniteQuery`, `useQuery`)
+- **HTTP Client:** Axios
+- **Styling:** Tailwind CSS / CSS
+- **Icons:** React Icons (`react-icons`)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Home Page (`/`):** Hero section with a banner and call-to-action button redirecting to the catalog.
+- **Catalog Page (`/catalog`):**
+  - Interactive filters by location, camper form, engine type, and transmission.
+  - Infinite pagination with the **Load More** button.
+  - Responsive catalog cards aligned with Figma designs.
+- **Camper Details Page (`/catalog/[camperId]`):**
+  - Detailed specs, vehicle dimensions, and image gallery.
+  - User reviews with 5-star rating visualizer.
+  - Interactive booking form with notification upon successful reservation.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 💻 Local Installation & Setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/your-username/travel-trucks.git](https://github.com/your-username/travel-trucks.git)
+   cd travel-trucks
+   ```
