@@ -1,37 +1,41 @@
 'use client';
 
 import Link from 'next/link';
-import { FaStar, FaMapMarkerAlt, FaHeart } from 'react-icons/fa';
+import { FaStar, FaMapMarkerAlt, FaGasPump, FaCogs, FaCaravan } from 'react-icons/fa';
 import { Camper } from '@/services/campersApi';
-import { useFavorites } from '@/hooks/useFavorites';
 
 interface CamperCardProps {
-  camper: Camper & { 
-    _id?: string; 
-    coverImage?: string; 
-    totalReviews?: number; 
+  camper: Camper & {
+    _id?: string;
+    coverImage?: string;
+    totalReviews?: number;
   };
 }
 
 export default function CamperCard({ camper }: CamperCardProps) {
-  const { isFavorite, toggleFavorite } = useFavorites();
-
   if (!camper) return null;
 
   const camperId = camper.id || camper._id || '';
-  const favorite = camperId ? isFavorite(camperId) : false;
 
-  // Безпечне отримання зображення через coverImage або масиви
+  // Отримання зображення
   const imageSrc =
     camper.coverImage ||
     (typeof camper.gallery?.[0] === 'string'
       ? camper.gallery[0]
       : camper.gallery?.[0]?.original || camper.gallery?.[0]?.thumb);
 
+  // Форматування локації: "Kyiv, Ukraine"
+  const formattedLocation = camper.location
+    ? camper.location.split(',').map((s) => s.trim()).reverse().join(', ')
+    : 'Kyiv, Ukraine';
+
+  // Ціна без копійок / десяткових знаків
+  const formattedPrice = camper.price ? `€${Math.round(camper.price)}` : '€8000';
+
   return (
-    <div className="border border-[#E4E7EC] rounded-[20px] p-6 flex gap-6 bg-white shadow-sm hover:shadow-md transition">
-      {/* Зображення кемпера */}
-      <div className="w-[290px] h-[310px] flex-shrink-0 relative rounded-[10px] overflow-hidden bg-gray-100">
+    <div className="w-[888px] h-[312px] bg-[#F7F7F7] rounded-[16px] p-[24px] flex gap-[24px]">
+      {/* Фото кемпера (219x240) */}
+      <div className="w-[219px] h-[240px] flex-shrink-0 relative rounded-[16px] overflow-hidden bg-gray-200">
         {imageSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -46,85 +50,62 @@ export default function CamperCard({ camper }: CamperCardProps) {
         )}
       </div>
 
-      {/* Основний вміст картки */}
-      <div className="flex flex-col justify-between flex-grow">
+      {/* Інформаційний блок */}
+      <div className="w-[524px] h-[264px] flex flex-col justify-between">
         <div>
-          {/* Заголовок, Ціна та Сердечко */}
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-2xl font-bold text-[#101828] truncate max-w-[380px]">
+          {/* Назва та ціна */}
+          <div className="flex justify-between items-center mb-[8px]">
+            <h2 className="text-[24px] leading-[32px] font-semibold text-[#101828] truncate max-w-[360px]">
               {camper.name || 'Camper'}
             </h2>
-            <div className="flex items-center gap-3">
-              {/* Ціна */}
-              <p className="text-2xl font-bold text-[#101828]">
-                {camper.price ? `€${camper.price.toFixed(2)}` : '€0.00'}
-              </p>
-
-              {/* Кнопка "Сердечко" */}
-              <button
-                type="button"
-                onClick={() => camperId && toggleFavorite(camperId)}
-                className="text-2xl transition hover:scale-110 focus:outline-none p-1 cursor-pointer"
-                aria-label="Add to favorites"
-              >
-                <FaHeart
-                  className={
-                    favorite
-                      ? 'text-[#E44848]'
-                      : 'text-[#101828] hover:text-[#E44848] transition-colors'
-                  }
-                />
-              </button>
-            </div>
+            <p className="text-[24px] leading-[32px] font-semibold text-[#101828]">
+              {formattedPrice}
+            </p>
           </div>
 
-          {/* Рейтинг та Локація */}
-          <div className="flex items-center gap-4 text-sm text-[#101828] mb-6">
-            <span className="flex items-center gap-1 underline">
-              <FaStar className="text-[#FFC531]" />
-              {camper.rating || 0} ({camper.totalReviews || 0} Reviews)
+          {/* Рейтинг та локація */}
+          <div className="flex items-center gap-[16px] text-[16px] leading-[24px] mb-[24px]">
+            <span className="flex items-center gap-[4px] text-[#101828]">
+              <FaStar className="text-[#FFC531] text-[16px]" />
+              <span className="underline font-normal">
+                {camper.rating || 4} ({camper.totalReviews || camper.reviews?.length || 2} Reviews)
+              </span>
             </span>
-            <span className="flex items-center gap-1">
-              <FaMapMarkerAlt className="text-[#101828]" />
-              {camper.location || ''}
+            <span className="flex items-center gap-[4px] text-[#101828]">
+              <FaMapMarkerAlt className="text-[16px]" />
+              {formattedLocation}
             </span>
           </div>
 
           {/* Опис */}
-          <p className="text-[#475467] text-sm line-clamp-1 mb-6">
-            {camper.description || ''}
+          <p className="text-[#475467] text-[16px] leading-[24px] font-normal truncate mb-[24px]">
+            {camper.description || 'Embrace simplicity and freedom with our campers...'}
           </p>
 
-          {/* Категорії / Опції */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {camper.transmission && (
-              <span className="bg-[#F7F7F7] px-4 py-3 rounded-full text-sm font-medium text-[#101828] capitalize">
-                {camper.transmission}
-              </span>
-            )}
-            {camper.engine && (
-              <span className="bg-[#F7F7F7] px-4 py-3 rounded-full text-sm font-medium text-[#101828] capitalize">
-                {camper.engine}
-              </span>
-            )}
-            {camper.kitchen && (
-              <span className="bg-[#F7F7F7] px-4 py-3 rounded-full text-sm font-medium text-[#101828]">
-                Kitchen
-              </span>
-            )}
-            {camper.AC && (
-              <span className="bg-[#F7F7F7] px-4 py-3 rounded-full text-sm font-medium text-[#101828]">
-                AC
-              </span>
-            )}
+          {/* Бейджі характеристик */}
+          <div className="flex items-center gap-[8px] mb-[24px]">
+            <span className="h-[48px] bg-[#F2F4F7] px-[18px] py-[12px] rounded-[10px] text-[16px] leading-[24px] font-medium text-[#101828] capitalize flex items-center gap-[8px]">
+              <FaGasPump className="text-[20px]" />
+              {camper.engine || 'Petrol'}
+            </span>
+            <span className="h-[48px] bg-[#F2F4F7] px-[18px] py-[12px] rounded-[10px] text-[16px] leading-[24px] font-medium text-[#101828] capitalize flex items-center gap-[8px]">
+              <FaCogs className="text-[20px]" />
+              {camper.transmission || 'Automatic'}
+            </span>
+            <span className="h-[48px] bg-[#F2F4F7] px-[18px] py-[12px] rounded-[10px] text-[16px] leading-[24px] font-medium text-[#101828] capitalize flex items-center gap-[8px]">
+              <FaCaravan className="text-[20px]" />
+              {camper.form ? camper.form.replace('_', ' ') : 'Alcove'}
+            </span>
           </div>
         </div>
 
-        {/* Кнопка "Show more" */}
+        {/* Кнопка Show More (зелена, згідно з макетом) */}
         <div>
           <Link
             href={`/catalog/${camperId}`}
-            className="bg-[#E44848] hover:bg-[#D83B3B] text-white font-medium px-10 py-4 rounded-full transition text-sm inline-block text-center shadow-sm"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-[173px] h-[56px] bg-[#829B91] hover:bg-[#728B81] text-white font-medium text-[16px] leading-[24px] tracking-[-0.5%] rounded-[200px] transition inline-flex items-center justify-center"
           >
             Show more
           </Link>
