@@ -6,7 +6,11 @@ import { Camper } from '@/services/campersApi';
 import { useFavorites } from '@/hooks/useFavorites';
 
 interface CamperCardProps {
-  camper: Camper & { _id?: string; coverImage?: string };
+  camper: Camper & { 
+    _id?: string; 
+    coverImage?: string; 
+    totalReviews?: number; 
+  };
 }
 
 export default function CamperCard({ camper }: CamperCardProps) {
@@ -17,7 +21,7 @@ export default function CamperCard({ camper }: CamperCardProps) {
   const camperId = camper.id || camper._id || '';
   const favorite = camperId ? isFavorite(camperId) : false;
 
-  // Беремо посилання на картинку з поля coverImage або з будь-якого іншого можливого місця
+  // Безпечне отримання зображення через coverImage або масиви
   const imageSrc =
     camper.coverImage ||
     (typeof camper.gallery?.[0] === 'string'
@@ -51,7 +55,7 @@ export default function CamperCard({ camper }: CamperCardProps) {
               {camper.name || 'Camper'}
             </h2>
             <div className="flex items-center gap-3">
-              {/* Ціна без коми у тисячах */}
+              {/* Ціна */}
               <p className="text-2xl font-bold text-[#101828]">
                 {camper.price ? `€${camper.price.toFixed(2)}` : '€0.00'}
               </p>
@@ -78,7 +82,7 @@ export default function CamperCard({ camper }: CamperCardProps) {
           <div className="flex items-center gap-4 text-sm text-[#101828] mb-6">
             <span className="flex items-center gap-1 underline">
               <FaStar className="text-[#FFC531]" />
-              {camper.rating || 0} ({camper.totalReviews || camper.reviews?.length || 0} Reviews)
+              {camper.rating || 0} ({camper.totalReviews || 0} Reviews)
             </span>
             <span className="flex items-center gap-1">
               <FaMapMarkerAlt className="text-[#101828]" />
@@ -116,7 +120,7 @@ export default function CamperCard({ camper }: CamperCardProps) {
           </div>
         </div>
 
-        {/* Кнопка "Show more" через Next.js Link у тій самій вкладці */}
+        {/* Кнопка "Show more" */}
         <div>
           <Link
             href={`/catalog/${camperId}`}
