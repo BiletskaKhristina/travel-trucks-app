@@ -6,8 +6,8 @@ TravelTrucks is a web application designed for renting campers and travel vans. 
 
 ## 🚀 Demo & Deployment
 
-- **Live Demo:** [Vercel Deployment Link](https://your-app-name.vercel.app)
-- **Repository:** [GitHub Repository Link](https://github.com/your-username/travel-trucks)
+- **Live Demo:** [Vercel Deployment Link](https://travel-trucks-app-9ots.vercel.app/)
+- **Repository:** [GitHub Repository Link](https://github.com/BiletskaKhristina/travel-trucks-app)
 
 ---
 
@@ -40,6 +40,6 @@ TravelTrucks is a web application designed for renting campers and travel vans. 
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/your-username/travel-trucks.git](https://github.com/your-username/travel-trucks.git)
+   git clone [https://github.com/BiletskaKhristina/travel-trucks-app](https://github.com/BiletskaKhristina/travel-trucks-app)
    cd travel-trucks
    ```
