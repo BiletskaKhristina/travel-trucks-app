@@ -92,16 +92,20 @@ export default function CamperDetailsPage() {
   const currentMainImage = galleryImages[activeImageIndex]?.original || galleryImages[0]?.original || '';
 
   // Валідація форми при відправці
+  // Валідація форми при відправці
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { name?: string; email?: string } = {};
 
-    if (!bookingData.name.trim()) {
+    // Перевірка імені: якщо порожнє або містить цифри/некоректні символи (як '12345' у макеті)
+    const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s'-]+$/;
+    if (!bookingData.name.trim() || !nameRegex.test(bookingData.name.trim())) {
       newErrors.name = 'Please enter your name.';
     }
 
+    // Перевірка email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!bookingData.email.trim() || !emailRegex.test(bookingData.email)) {
+    if (!bookingData.email.trim() || !emailRegex.test(bookingData.email.trim())) {
       newErrors.email = 'Please enter your email.';
     }
 
@@ -115,7 +119,6 @@ export default function CamperDetailsPage() {
     setIsSubmitted(true);
     setBookingData({ name: '', email: '' });
   };
-
   return (
     <div className="w-full bg-white min-h-screen pb-[278px] pt-[64px]">
       <div className="w-[1312px] mx-auto px-[64px]">
