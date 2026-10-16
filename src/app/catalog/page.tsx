@@ -14,7 +14,7 @@ export default function CatalogPage() {
   const [engine, setEngine] = useState('');
   const [transmission, setTransmission] = useState('');
 
-  // Отримання даних з бекенду з пагінацією
+  // Отримання даних з бекенду з пагінацією та фільтрами
   const {
     data,
     fetchNextPage,
@@ -27,21 +27,22 @@ export default function CatalogPage() {
     queryFn: ({ pageParam = 1 }) =>
       fetchCampers({
         pageParam: pageParam as number,
+        filters: {
+          location,
+          form,
+          engine,
+          transmission,
+        },
       }),
-    getNextPageParam: (lastPage: { items?: Camper[]; campers?: Camper[]; length?: number }, allPages) => {
-      const campersList = lastPage?.items || lastPage?.campers || (Array.isArray(lastPage) ? lastPage : []);
+    getNextPageParam: (lastPage, allPages) => {
+      const campersList = lastPage?.campers || [];
       return campersList.length === 4 ? allPages.length + 1 : undefined;
     },
     initialPageParam: 1,
   });
 
   const campers: Camper[] =
-    data?.pages.flatMap((page) => {
-      const list = (page as { items?: Camper[]; campers?: Camper[] })?.items ||
-                   (page as { items?: Camper[]; campers?: Camper[] })?.campers ||
-                   (Array.isArray(page) ? page : []);
-      return Array.isArray(list) ? list : [];
-    }).filter(Boolean) || [];
+    data?.pages.flatMap((page) => page?.campers || []) || [];
 
   const handleSearch = () => {
     refetch();
